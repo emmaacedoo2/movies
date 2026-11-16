@@ -31,3 +31,82 @@ movies |>
   ) +
   theme_minimal()
 ```
+
+
+
+
+```{r}
+movies_gap <- movies_clean |>
+  filter(tomatoMeter != 0, audienceScore != 0) |>
+  mutate(gap = tomatoMeter - audienceScore)
+
+movies_summary <- movies_gap |>
+  group_by(genre) |>
+  summarise(
+    mean_gap = mean(gap, na.rm = TRUE),
+    n = n()
+  ) |>
+  filter(n >= 100) |>
+  arrange(mean_gap)
+
+movies_summary |>
+  ggplot(aes(x = mean_gap, y = reorder(genre, mean_gap))) +
+  geom_col(fill = "steelblue") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Critic vs. Audience Gap by Genre",
+    subtitle = "Average Tomatometer minus Audience Score (genres with at least 100 films)",
+    x = "Average Gap",
+    y = "Genre"
+  ) +
+  theme_minimal()
+```
+
+
+
+```{r}
+spiderman <- movies |>
+  filter(title %in% c(
+    "Spider-Man",
+    "Spider-Man 2",
+    "Spider-Man 3",
+    "The Amazing Spider-Man",
+    "The Amazing Spider-Man 2",
+    "Spider-Man: Homecoming",
+    "Spider-Man: Far From Home",
+    "Spider-Man: No Way Home"
+  )) |>
+  mutate(
+    actor = case_when(
+      title %in% c("Spider-Man", "Spider-Man 2", "Spider-Man 3") ~ "Tobey Maguire",
+      str_detect(title, "The Amazing") ~ "Andrew Garfield",
+      str_detect(title, ":") ~ "Tom Holland"
+    )
+  ) |>
+  arrange(releaseDateTheaters)
+
+spiderman |>
+  mutate(film = factor(title, levels = title)) |>
+  select(film, tomatoMeter, audienceScore) |>
+  pivot_longer(
+    cols = c(tomatoMeter, audienceScore),
+    names_to = "score_type",
+    values_to = "score"
+  ) |>
+  ggplot(aes(x = film, y = score, color = score_type, group = score_type)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  scale_color_manual(
+    values = c("tomatoMeter" = "red", "audienceScore" = "blue"),
+    labels = c("tomatoMeter" = "Critics", "audienceScore" = "Audience")
+  ) +
+  labs(
+    title = "Spider-Man: Critics and Audiences Don't Always Agree",
+    subtitle = "Tomatometer vs. Audience Score across eight Spider-Man films",
+    x = "Movie",
+    y = "Score",
+    color = "Rating"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
