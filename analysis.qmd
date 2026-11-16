@@ -14,6 +14,6 @@ movies <- read_csv("data/movies.csv")
 ```
 
 ```{r}
-movies |>
-  summarise(across(everything(), ~sum(is.na(.))))
+movies_clean <- movies |>
+  separate_longer_delim(genre, delim = ",")
 ```
