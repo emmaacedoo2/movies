@@ -14,6 +14,20 @@ movies <- read_csv("data/movies.csv")
 ```
 
 ```{r}
+#| cache: true
 movies_clean <- movies |>
   separate_longer_delim(genre, delim = ",")
+```
+
+```{r}
+movies |>
+  ggplot(aes(x = tomatoMeter)) +
+  geom_histogram(binwidth = 10, fill = "steelblue", color = "white") +
+  labs(
+    title = "Distribution of Tomatometer Scores",
+    subtitle = paste("Number of films:", nrow(movies)),
+    x = "Tomatometer Score",
+    y = "Count"
+  ) +
+  theme_minimal()
 ```
