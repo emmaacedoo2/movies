@@ -11,6 +11,9 @@ execute:
 library(tidyverse)
 
 movies <- read_csv("data/movies.csv")
+```
 
-movies
+```{r}
+movies |>
+  summarise(across(everything(), ~sum(is.na(.))))
 ```
